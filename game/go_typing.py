@@ -40,9 +40,9 @@ def display_instructions():
     while True:
         choice = input("Do you ready to play the game (1:Yes, 0:No): ").strip()
         if choice == '1':
-            return True  # Proceed to start the game
-        elif choice == '0':
-            return False  # Exit to main menu
+            return True
+        elif choice == '0' or choice == 'exit':
+            return False
         else:
             print("Invalid input. Please enter '1' to start or '0' to return to the main menu.")
 

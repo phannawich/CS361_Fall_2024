@@ -35,7 +35,7 @@ def main():
             use_item.main()
         elif choice == '4':
             shop.main()
-        elif choice == '0':
+        elif choice == '0' or choice == 'exit':
             print("Thank you for playing! Goodbye!")
             sys.exit()
         else:
