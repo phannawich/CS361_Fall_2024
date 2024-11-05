@@ -1,0 +1,7 @@
+{
+    "hp": 0,
+    "maxhp": 20,
+    "exp": 10,
+    "maxexp": 150,
+    "inventory": []
+}
