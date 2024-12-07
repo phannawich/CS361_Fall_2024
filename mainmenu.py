@@ -8,6 +8,8 @@ def display_welcome():
     print("    Welcome to the Speed Typing RPG!    ")
     print("=======================================")
     print()
+    print("You will speed typing and gain exp and progress in this game")
+    print()
 
 def display_menu():
     """Displays the main menu options."""

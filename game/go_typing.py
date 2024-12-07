@@ -1,25 +1,18 @@
 import json
 import random
 import time
-from game import clear_screen
 import os
 
-def load_character():
-    """Loads character data from character.json."""
-    try:
-        with open(os.path.join(os.path.dirname(__file__), 'character.json'), 'r') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        print("Error: character.json not found.")
-        return None
-    except json.JSONDecodeError:
-        print("Error: character.json is not a valid JSON file.")
-        return None
+def clear_screen():
+    """Clears the terminal screen."""
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 def load_dictionary():
     """Loads words from dictionary.json."""
     try:
-        with open(os.path.join(os.path.dirname(__file__), 'dictionary.json'), 'r') as f:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(script_dir, "dictionary.json")
+        with open(file_path, "r") as f:
             data = json.load(f)
             return data.get("words", [])
     except FileNotFoundError:
@@ -29,125 +22,149 @@ def load_dictionary():
         print("Error: dictionary.json is not a valid JSON file.")
         return []
 
+def load_character():
+    """Loads character data from character.json."""
+    try:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(script_dir, "character.json")
+        with open(file_path, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print("Error: character.json not found.")
+        return None
+    except json.JSONDecodeError:
+        print("Error: character.json is not a valid JSON file.")
+        return None
+
+def save_character(character):
+    """Saves character data to character.json."""
+    try:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(script_dir, "character.json")
+        with open(file_path, "w") as f:
+            json.dump(character, f, indent=4)
+    except Exception as e:
+        print(f"Error saving character data: {e}")
+
+def write_to_file(file_path, content):
+    """Writes content to a file."""
+    try:
+        with open(file_path, "w") as f:
+            f.write(content)
+    except Exception as e:
+        print(f"Error writing to file {file_path}: {e}")
+
+def read_from_file(file_path):
+    """Reads content from a file."""
+    try:
+        with open(file_path, "r") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return ""
+    except Exception as e:
+        print(f"Error reading file {file_path}: {e}")
+        return ""
+
 def display_instructions():
     """Displays typing game instructions."""
-    print("=== Go typing Instructions ===")
-    print("You will have to type as fast as you can to gain Experince point (EXP)")
-    print("Accumulating EXP will help you level up your character")
-    print("Be careful! Incorrect typings might affect your health point (HP)")
+    print("=== Go Typing Instructions ===")
+    print("You will have to type as fast as you can to gain Experience Points (EXP).")
+    print("Accumulating EXP will help you level up your character.")
+    print("Be careful! Incorrect typings might affect your score and EXP gain.")
     print("=================================")
-    
+
     while True:
-        choice = input("Do you ready to play the game (1:Yes, 0:No): ").strip()
-        if choice == '1':
+        choice = input("Are you ready to play the game? (1: Yes, 0: No): ").strip()
+        if choice == "1":
             return True
-        elif choice == '0' or choice == 'exit':
+        elif choice == "0" or choice.lower() == "exit":
             return False
         else:
             print("Invalid input. Please enter '1' to start or '0' to return to the main menu.")
 
 def display_character_status(character):
-    """Displays the character's HP and EXP status."""
+    """Displays the character's current HP and EXP."""
     print("=== Character Status ===")
     print(f"HP: {character['hp']}/{character['maxhp']}")
     print(f"EXP: {character['exp']}/{character['maxexp']}")
     print("========================")
-    print()
-
-def save_character(character):
-    """Saves the updated character data back to character.json."""
-    try:
-        with open(os.path.join(os.path.dirname(__file__), 'character.json'), 'w') as f:
-            json.dump(character, f, indent=4)
-    except Exception as e:
-        print(f"Error saving character data: {e}")
-
-def calculate_accuracy(expected, actual):
-    """Calculates the accuracy percentage between expected and actual input."""
-    expected_chars = list(expected)
-    actual_chars = list(actual)
-    correct = sum(1 for ew, aw in zip(expected_chars, actual_chars) if ew == aw)
-    total = len(expected_chars)
-    return (correct / total) * 100 if total > 0 else 0
 
 def main():
     clear_screen()
-    
+
     character = load_character()
     if not character:
-        input("Press Enter to return to the main menu...")
+        input("Press Enter to exit...")
         return
-    
-    display_character_status(character)
-    proceed = display_instructions()
-    if not proceed:
-        return
-
 
     words = load_dictionary()
     if not words:
-        input("Press Enter to return to the main menu...")
+        input("Press Enter to exit...")
         return
-
-    clear_screen()
-    print("Starting the Typing Game...")
-    time.sleep(2)
-    clear_screen()
 
     display_character_status(character)
 
-    score = 0
-    mistakes = 0
-    total_words = 10
+    if not display_instructions():
+        return
 
-    for i in range(1, total_words + 1):
-        word = random.choice(words)
-        print(f"Word {i}/{total_words}:")
-        print(f"{word}")
-        start_time = time.time()
-        user_input = input("Your input: ").strip()
-        end_time = time.time()
+    clear_screen()
 
+    # Generate a prompt with 10-15 random words
+    prompt_words = " ".join(random.sample(words, random.randint(10, 15)))
+    write_to_file("prompt.txt", prompt_words)
+
+    print("Type the following text:")
+    print(prompt_words)
+
+    start_time = time.time()
+    user_input = input("Your input: ").strip()
+    end_time = time.time()
+
+    write_to_file("user_input.txt", user_input)
+
+    time.sleep(1)  # Allow microserviceA to process
+    result = read_from_file("compared_result.txt")
+
+    if not result:
+        print("Error: No response from microserviceA. Returning to main menu.")
+        return
+
+    try:
+        correct, total = map(int, result.split("/"))
+        accuracy = (correct / total) * 100 if total > 0 else 0
         time_taken = end_time - start_time
-        accuracy = calculate_accuracy(word, user_input)
 
-        if user_input == word:
-            exp_gained = 10
-            print(f"Correct! (+{exp_gained} EXP) Time taken: {time_taken:.2f} seconds\n")
-            score += exp_gained
-            character['exp'] += exp_gained
-        else:
-            hp_lost = 5
-            print(f"Incorrect! (-{hp_lost} HP)")
-            print(f"Expected: '{word}'")
-            print(f"Your Input: '{user_input}'")
-            print(f"Accuracy: {accuracy:.2f}%\n")
-            mistakes += 1
-            character['hp'] -= hp_lost
+        exp_gained = correct * 10
+        hp_lost = (total - correct) * 5
 
-        display_character_status(character)
+        character['exp'] += exp_gained
+        character['hp'] -= hp_lost
+
+        print(f"Result: {correct}/{total} correct words")
+        print(f"Accuracy: {accuracy:.2f}%")
+        print(f"Time Taken: {time_taken:.2f} seconds")
+        print(f"EXP Gained: {exp_gained}")
+        print(f"HP Lost: {hp_lost}")
 
         if character['hp'] <= 0:
-            print("Your HP has dropped to 0! Game Over.")
-            break
+            print("Your HP has dropped to 0. Game Over!")
+            character['hp'] = 0
+        else:
+            if character['exp'] >= character['maxexp']:
+                character['exp'] -= character['maxexp']
+                character['maxexp'] += 50
+                print("Congratulations! You've leveled up!")
+                print(f"New EXP requirement for next level: {character['maxexp']}")
 
-        time.sleep(1)
-        clear_screen()
+        save_character(character)
 
-    if character['hp'] > 0:
-        print("Typing session completed.")
-    print(f"Score: {score}")
-    print(f"Mistakes: {mistakes}")
+    except ValueError:
+        print("Error: Invalid response format from microserviceA.")
 
-    if character['exp'] >= character['maxexp']:
-        character['exp'] -= character['maxexp']
-        character['maxexp'] += 50
-        print("Congratulations! You've leveled up!")
-        print(f"New EXP requirement for next level: {character['maxexp']}")
-    else:
-        print(f"Current EXP: {character['exp']}/{character['maxexp']}")
-
-    save_character(character)
+    # Clear all files
+    write_to_file("prompt.txt", "")
+    write_to_file("user_input.txt", "")
+    write_to_file("compared_result.txt", "")
 
     input("Press Enter to return to the main menu...")
 

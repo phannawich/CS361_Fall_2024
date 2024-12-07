@@ -1,7 +1,13 @@
 {
-    "hp": 0,
+    "hp": 20,
     "maxhp": 20,
-    "exp": 10,
-    "maxexp": 150,
-    "inventory": []
+    "exp": 0,
+    "maxexp": 200,
+    "coin": 170,
+    "inventory": {
+        "Small HP Potion": 1,
+        "Large HP Potion": 0,
+        "Small EXP Potion": 0,
+        "Large EXP Potion": 0
+    }
 }
